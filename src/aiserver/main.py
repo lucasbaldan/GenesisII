@@ -13,7 +13,7 @@ chave_api = os.getenv("OPENAI_API_KEY")
 #     SystemMessage("Traduza o texto a seguir para o inglês"),
 #     HumanMessage("Olá, esse é o meu primeito teste utilizando o LangChain e python"),
 # ]
-modelo = ChatOpenAI(api_key=chave_api, model="gpt-3.5-turbo", temperature=0.7)
+modelo = ChatOpenAI(api_key=chave_api, model="gpt-3.5-turbo", temperature=0.5)
 parser = StrOutputParser()
 
 
