@@ -66,14 +66,15 @@ def buscar_info_faiss(pergunta_usuario: str) -> list[dict] | None | str:
     
     """
     try:
-        resultados = faiss.similarity_search(pergunta_usuario, k=3)
+        resultados = faiss.similarity_search_with_score(pergunta_usuario, k=10)
         if resultados:
             return [
                 {
                     "doc_id": r.metadata.get("id", "idnull"),
                     "page_content": r.page_content,
+                    "score": score
                 }
-                for r in resultados
+                for r, score in resultados if score < 1.5
             ]
         else:
             return None
