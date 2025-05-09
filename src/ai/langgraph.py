@@ -4,7 +4,7 @@ from langgraph.prebuilt import create_react_agent # FunÃ§Ã£o principal do La
 from langchain_core.messages import SystemMessage # Para definir a mensagem de sistema (persona)
 from langchain_core.tools import tool # Decorador para definir ferramentas
 from langchain_openai import ChatOpenAI;
-from langchain_community.embeddings import OpenAIEmbeddings # Para embeddings
+from langchain_openai import OpenAIEmbeddings # Para embeddings
 from langchain_community.vectorstores import FAISS # Para armazenar os embeddings
 from langchain.schema import Document # Para definir documentos a serem gravados no FAISS
 import os
