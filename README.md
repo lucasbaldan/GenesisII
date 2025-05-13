@@ -8,4 +8,7 @@
 -> alembic revision --autogenerate -m "nome da migração"
 
 - Subir as migrações para o banco de dados SQL
--> 
+-> alembic upgrade head
+
+-Rodar servidor local uvicorn com Docker (se necessário)
+-> uvicorn src.api.server:app --reload

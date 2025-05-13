@@ -1,8 +1,8 @@
-"""acertando tipos da table usuarios
+"""inicializado projeto com tabela de usuários
 
-Revision ID: d8e6334cf52b
+Revision ID: 9bb72d75ebb9
 Revises: 
-Create Date: 2025-05-12 22:45:44.411753
+Create Date: 2025-05-13 13:49:19.300042
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd8e6334cf52b'
+revision: str = '9bb72d75ebb9'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -24,11 +24,17 @@ def upgrade() -> None:
     op.create_table('usuarios',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('usuario', sa.String(length=100), nullable=False),
+    sa.Column('nome_completo', sa.String(length=255), nullable=False),
+    sa.Column('cpf', sa.String(length=14), nullable=False),
+    sa.Column('celular1', sa.String(length=15), nullable=False),
+    sa.Column('celular2', sa.String(length=15), nullable=True),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('password', sa.String(length=128), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email')
+    sa.UniqueConstraint('cpf'),
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('usuario')
     )
     # ### end Alembic commands ###
 
