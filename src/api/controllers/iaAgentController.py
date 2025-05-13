@@ -1,12 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from ai.langgraph import graph
+from api.shared.schemas import ConsultaAgent, ResponseAgent
 
 iaAgentControllerRouter = APIRouter(prefix="/ia", tags=["IA"])
-
-class ConsultaAgent(BaseModel):
-    prompt: str
-    
 
 @iaAgentControllerRouter.post("/consultar")
 async def consultar_agente(consulta: ConsultaAgent):
@@ -29,7 +25,9 @@ async def consultar_agente(consulta: ConsultaAgent):
                 break
 
         if ultima_mensagem:
-            return {"resposta_agent": ultima_mensagem.content}
+            return ResponseAgent(
+                resposta_agent=ultima_mensagem.content
+            )
         else:
             raise HTTPException(status_code=500, detail="O agente não retornou uma resposta válida.")
 
