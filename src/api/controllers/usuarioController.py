@@ -45,3 +45,86 @@ async def salvar(usuario: UsuarioAPI, session : Session = Depends(get_session_en
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@usuarioController.put("/{id}", status_code=HTTPStatus.OK, response_model=ResponseUsuario)
+async def atualizar_usuario(
+    id: int,
+    usuario: UsuarioAPI,
+    session: Session = Depends(get_session_engine)
+):
+    try:
+
+        usuario_db = session.scalar(
+            select(User).where(User.id == id).limit(1)
+            )
+        if not usuario_db:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Usuário não encontrado na base de dados.")
+        
+        usuario_db.usuario = usuario.usuario
+        usuario_db.email = usuario.email
+        usuario_db.nome_completo = usuario.nome_completo
+        usuario_db.cpf = usuario.cpf
+        usuario_db.celular1 = usuario.celular1
+        usuario_db.celular2 = usuario.celular2
+
+        if usuario.password:
+            usuario_db.password = usuario.password
+
+        session.commit()
+        session.refresh(usuario_db)
+
+        return usuario_db
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@usuarioController.get("/", status_code=HTTPStatus.OK, response_model=list[ResponseUsuario])
+async def listar(
+    limit: int = 100,
+    page: int = 1,
+    session: Session = Depends(get_session_engine)
+    ):
+    try:
+        usuarios = session.scalars(
+           select(User).limit(limit).offset((page - 1) * limit)
+        ).all()
+        return usuarios
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@usuarioController.get("/{id}", status_code=HTTPStatus.OK, response_model=ResponseUsuario)
+async def buscar_usuario(
+    id: int,
+    session: Session = Depends(get_session_engine)
+):
+    try:
+        usuario = session.scalar(
+            select(User).where(User.id == id).limit(1)
+            )
+        if not usuario:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Usuário não encontrado.")
+        return usuario
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@usuarioController.delete("/{id}", status_code=HTTPStatus.OK)
+async def deletar_usuario(
+    id: int,
+    session: Session = Depends(get_session_engine)
+):
+    try:
+        usuario = session.scalar(
+            select(User).where(User.id == id).limit(1)
+            )
+        if not usuario:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Usuário não encontrado.")
+        
+        session.delete(usuario)
+        session.commit()
+        return
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

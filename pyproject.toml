@@ -26,6 +26,20 @@ dependencies = [
 packages = [{include = "aiserver", from = "src"}]
 
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+pytest-cov = "^6.1.1"
+taskipy = "^1.14.1"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = '-p no:warnings'
+
+[tool.taskipy.tasks]
+run = 'uvicorn src.api.server:app --reload'
+test_api = 'pytest --cov=src/api -vv'
+post_test_api = 'coverage html'

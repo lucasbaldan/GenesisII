@@ -3,3 +3,6 @@
 .langgraph_api/
 __pycache__/
 storage/
+.coverage
+.pytest_cache/
+htmlcov/

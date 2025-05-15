@@ -5,3 +5,7 @@ from api.controllers.usuarioController import usuarioController
 app = FastAPI()
 app.include_router(iaAgentControllerRouter)
 app.include_router(usuarioController)
+
+@app.post("/teste")
+async def teste():
+    return {"message": "Hello World!"}
