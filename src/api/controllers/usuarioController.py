@@ -1,10 +1,12 @@
 from http import HTTPStatus
 from fastapi import APIRouter, HTTPException, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from requests import Session
 from sqlalchemy import select
 from api.shared.schemas import UsuarioAPI, ResponseUsuario
 from api.database.models import User
 from api.database.engine import get_session_engine
+from api.utils.PasswordHash import hash_password, verify_password
 
 usuarioController = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
@@ -30,7 +32,7 @@ async def salvar(usuario: UsuarioAPI, session : Session = Depends(get_session_en
             novo_usuario = User(
                 usuario=usuario.usuario,
                 email=usuario.email,
-                password=usuario.password,
+                password=hash_password(usuario.password),
                 nome_completo=usuario.nome_completo,
                 cpf=usuario.cpf,
                 celular1=usuario.celular1,
@@ -69,7 +71,7 @@ async def atualizar_usuario(
         usuario_db.celular2 = usuario.celular2
 
         if usuario.password:
-            usuario_db.password = usuario.password
+            usuario_db.password = hash_password(usuario.password)
 
         session.commit()
         session.refresh(usuario_db)
@@ -126,5 +128,27 @@ async def deletar_usuario(
         session.delete(usuario)
         session.commit()
         return
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@usuarioController.post("/login", status_code=HTTPStatus.OK)
+async def login(
+    usuario: UsuarioAPI,
+    session: Session = Depends(get_session_engine)
+):
+    try:
+        usuario_db = session.scalar(
+            select(User).where(User.usuario == usuario.usuario).limit(1)
+            )
+        if not usuario_db:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Usuário não encontrado.")
+        
+        if not verify_password(usuario.password, usuario_db.password):
+            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Senha incorreta.")
+        
+        return {
+            "message": "Login realizado com sucesso.",
+            "usuario": usuario_db
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -33,3 +33,6 @@ class ResponseUsuario(BaseModel):
     celular1: str
     celular2: str | None = None
     created_at: datetime
+
+class SubJWT(BaseModel):
+    user_id: int
