@@ -3,15 +3,19 @@ from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from requests import Session
 from sqlalchemy import select
-from api.shared.schemas import UsuarioAPI, ResponseUsuario
+from api.shared.schemas import SubJWT, UsuarioAPI, ResponseUsuario
 from api.database.models import User
 from api.database.engine import get_session_engine
 from api.utils.PasswordHash import hash_password, verify_password
+from api.utils.JWT import create_jwt_token
+from api.utils.OAuth2 import get_current_user
 
 usuarioController = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 @usuarioController.post("/", status_code=HTTPStatus.CREATED, response_model=ResponseUsuario)
-async def salvar(usuario: UsuarioAPI, session : Session = Depends(get_session_engine)):
+async def salvar(usuario: UsuarioAPI, 
+                 session : Session = Depends(get_session_engine),
+                 ):
     try:    
               
             verifica_usuario = session.scalar(
@@ -86,7 +90,8 @@ async def atualizar_usuario(
 async def listar(
     limit: int = 100,
     page: int = 1,
-    session: Session = Depends(get_session_engine)
+    session: Session = Depends(get_session_engine),
+    current_user=Depends(get_current_user)
     ):
     try:
         usuarios = session.scalars(
@@ -131,24 +136,30 @@ async def deletar_usuario(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@usuarioController.post("/login", status_code=HTTPStatus.OK)
+@usuarioController.post("/token", status_code=HTTPStatus.OK)
 async def login(
-    usuario: UsuarioAPI,
+    data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session_engine)
 ):
     try:
-        usuario_db = session.scalar(
-            select(User).where(User.usuario == usuario.usuario).limit(1)
+        verifica_usuario: User = session.scalar(
+            select(User).where(
+                (User.cpf == data.username) | (User.email == data.username)
+                ).limit(1)
             )
-        if not usuario_db:
-            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Usuário não encontrado.")
+        if not verifica_usuario or not verify_password(data.password, verifica_usuario.password):
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Usuário ou senha inválidos para acesso a aplicação.")
         
-        if not verify_password(usuario.password, usuario_db.password):
-            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Senha incorreta.")
         
-        return {
-            "message": "Login realizado com sucesso.",
-            "usuario": usuario_db
-        }
+        acess_token = create_jwt_token(data=verifica_usuario.id)
+        return acess_token
+    
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@usuarioController.post("/me", status_code=HTTPStatus.OK)
+async def login(
+    current_user=Depends(get_current_user)
+):
+    return current_user
