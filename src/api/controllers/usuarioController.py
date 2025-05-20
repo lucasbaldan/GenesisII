@@ -1,20 +1,21 @@
 from http import HTTPStatus
+
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from requests import Session
+
 from sqlalchemy import select
-from api.shared.schemas import SubJWT, UsuarioAPI, ResponseUsuario
+
+from api.shared.Annotateds import T_Current_User, T_Session, T_OAuth2_Request_Form
+from api.shared.schemas import  RefreshTokenRequest, UsuarioAPI, ResponseUsuario
 from api.database.models import User
-from api.database.engine import get_session_engine
 from api.utils.PasswordHash import hash_password, verify_password
 from api.utils.JWT import create_jwt_token
-from api.utils.OAuth2 import get_current_user
 
-usuarioController = APIRouter(prefix="/usuarios", tags=["usuarios"])
+router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
-@usuarioController.post("/", status_code=HTTPStatus.CREATED, response_model=ResponseUsuario)
+@router.post("/", status_code=HTTPStatus.CREATED, response_model=ResponseUsuario)
 async def salvar(usuario: UsuarioAPI, 
-                 session : Session = Depends(get_session_engine),
+                 session: T_Session,
                  ):
     try:    
               
@@ -53,11 +54,11 @@ async def salvar(usuario: UsuarioAPI,
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@usuarioController.put("/{id}", status_code=HTTPStatus.OK, response_model=ResponseUsuario)
+@router.put("/{id}", status_code=HTTPStatus.OK, response_model=ResponseUsuario)
 async def atualizar_usuario(
     id: int,
     usuario: UsuarioAPI,
-    session: Session = Depends(get_session_engine)
+    session: T_Session
 ):
     try:
 
@@ -86,12 +87,12 @@ async def atualizar_usuario(
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@usuarioController.get("/", status_code=HTTPStatus.OK, response_model=list[ResponseUsuario])
+@router.get("/", status_code=HTTPStatus.OK, response_model=list[ResponseUsuario])
 async def listar(
+    current_user: T_Current_User,
+    session: T_Session,
     limit: int = 100,
     page: int = 1,
-    session: Session = Depends(get_session_engine),
-    current_user=Depends(get_current_user)
     ):
     try:
         usuarios = session.scalars(
@@ -102,10 +103,10 @@ async def listar(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@usuarioController.get("/{id}", status_code=HTTPStatus.OK, response_model=ResponseUsuario)
+@router.get("/{id}", status_code=HTTPStatus.OK, response_model=ResponseUsuario)
 async def buscar_usuario(
     id: int,
-    session: Session = Depends(get_session_engine)
+    session: T_Session
 ):
     try:
         usuario = session.scalar(
@@ -118,10 +119,10 @@ async def buscar_usuario(
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@usuarioController.delete("/{id}", status_code=HTTPStatus.OK)
+@router.delete("/{id}", status_code=HTTPStatus.OK)
 async def deletar_usuario(
     id: int,
-    session: Session = Depends(get_session_engine)
+    session: T_Session
 ):
     try:
         usuario = session.scalar(
@@ -136,15 +137,15 @@ async def deletar_usuario(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@usuarioController.post("/token", status_code=HTTPStatus.OK)
+@router.post("/token", status_code=HTTPStatus.OK)
 async def login(
-    data: OAuth2PasswordRequestForm = Depends(),
-    session: Session = Depends(get_session_engine)
-):
+    session: T_Session,
+    data: T_OAuth2_Request_Form
+ ):
     try:
         verifica_usuario: User = session.scalar(
             select(User).where(
-                (User.cpf == data.username) | (User.email == data.username)
+                ((User.cpf == data.username) | (User.email == data.username)) & (User.ativo == True)
                 ).limit(1)
             )
         if not verifica_usuario or not verify_password(data.password, verifica_usuario.password):
@@ -152,14 +153,34 @@ async def login(
         
         
         acess_token = create_jwt_token(data=verifica_usuario.id)
+
+        verifica_usuario.refresh_token = acess_token["refresh_token"]
+        verifica_usuario.refresh_token_exp = acess_token["expires(datetime)"]
+        session.commit()
+
         return acess_token
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-
-@usuarioController.post("/me", status_code=HTTPStatus.OK)
+@router.post("/refreshToken", status_code=HTTPStatus.OK)
 async def login(
-    current_user=Depends(get_current_user)
-):
-    return current_user
+    session: T_Session,
+    current_user: T_Current_User,
+    dados: RefreshTokenRequest
+ ):
+    try:
+        
+        if current_user.refresh_token != dados.refresh_token or current_user.refresh_token_exp < dados.exp_acess_token:
+            raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Ocorreu um erro ao renovar autenticação na api.")
+        
+        acess_token = create_jwt_token(data=current_user.id)
+
+        current_user.refresh_token = acess_token["refresh_token"]
+        current_user.refresh_token_exp = acess_token["expires(datetime)"]
+        session.commit()
+
+        return acess_token
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

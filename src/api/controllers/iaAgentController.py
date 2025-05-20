@@ -2,9 +2,9 @@ from fastapi import APIRouter, HTTPException
 from ai.langgraph import graph
 from api.shared.schemas import ConsultaAgent, ResponseAgent
 
-iaAgentControllerRouter = APIRouter(prefix="/ia", tags=["IA"])
+router = APIRouter(prefix="/ia", tags=["IA"])
 
-@iaAgentControllerRouter.post("/consultar")
+@router.post("/consultar")
 async def consultar_agente(consulta: ConsultaAgent):
     """
     Endpoint para consultar o agente IA com uma pergunta.

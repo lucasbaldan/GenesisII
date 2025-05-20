@@ -1,11 +1,6 @@
 from fastapi import FastAPI
-from api.controllers.iaAgentController import iaAgentControllerRouter
-from api.controllers.usuarioController import usuarioController
+from api.controllers import usuarioController, iaAgentController
 
 app = FastAPI()
-app.include_router(iaAgentControllerRouter)
-app.include_router(usuarioController)
-
-@app.post("/teste")
-async def teste():
-    return {"message": "Hello World!"}
+app.include_router(iaAgentController.router)
+app.include_router(usuarioController.router)

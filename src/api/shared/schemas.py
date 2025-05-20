@@ -34,5 +34,5 @@ class ResponseUsuario(BaseModel):
     celular2: str | None = None
     created_at: datetime
 
-class SubJWT(BaseModel):
-    user_id: int
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str

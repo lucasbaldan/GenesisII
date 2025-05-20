@@ -10,5 +10,5 @@
 - Subir as migrações para o banco de dados SQL
 -> alembic upgrade head
 
--Rodar servidor local uvicorn com Docker (se necessário)
--> uvicorn src.api.server:app --reload
+-Rodar servidor local uvicorn sem Docker (se necessário)
+-> uvicorn src.api.server:app --reload ou task run

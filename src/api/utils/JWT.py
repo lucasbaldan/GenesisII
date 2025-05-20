@@ -1,5 +1,8 @@
 from jwt import encode, decode
+
 from datetime import datetime, timedelta, timezone
+
+import secrets
 
 import os
 from dotenv import load_dotenv
@@ -27,7 +30,8 @@ def create_jwt_token(data: int):
     return {
         "access_token": jwt,
         "token_type": "bearer",
-        "expires": expire 
+        "refresh_token": generate_refresh_token(),
+        "expires(datetime)": expire 
     }
 
 def decode_jwt_token(token: str) -> int:
@@ -41,3 +45,10 @@ def decode_jwt_token(token: str) -> int:
             algorithms=[jwtAlgorithm]
         )
     return int(payload.get("sub"))
+
+def generate_refresh_token() -> str:
+    """
+    Generate a refresh token.
+
+    """
+    return secrets.token_urlsafe(32)
