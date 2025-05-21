@@ -18,7 +18,7 @@ def create_jwt_token(data: int):
     Create a JWT token.
 
     """ 
-    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=int(jwtExpireMins))
+    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=int(60))
 
     jwt = encode({
         "exp": expire,
@@ -31,7 +31,7 @@ def create_jwt_token(data: int):
         "access_token": jwt,
         "token_type": "bearer",
         "refresh_token": generate_refresh_token(),
-        "expires(datetime)": expire 
+        "expires(utc)": expire 
     }
 
 def decode_jwt_token(token: str) -> int:

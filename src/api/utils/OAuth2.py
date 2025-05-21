@@ -23,11 +23,13 @@ def get_current_user(
             raise Exception("Erro ao decodificar o token")
     
         usuario: User = session.scalar(
-        select(User).where(User.id == usuario_id_logado)
+        select(User).where(
+            (User.id == usuario_id_logado) & (User.ativo == True) & (User.acess_token == token)
+            )
         )
 
         if not usuario:
-            raise Exception("Usuário não encontrado ativamente na base de dados.")
+            raise Exception("Usuário não encontrado ativamente na plataforma.")
         
         return usuario
     

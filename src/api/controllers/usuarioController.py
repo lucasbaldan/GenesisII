@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from http import HTTPStatus
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -154,6 +155,7 @@ async def login(
         
         acess_token = create_jwt_token(data=verifica_usuario.id)
 
+        verifica_usuario.acess_token = acess_token["access_token"]
         verifica_usuario.refresh_token = acess_token["refresh_token"]
         verifica_usuario.refresh_token_exp = acess_token["expires(datetime)"]
         session.commit()
@@ -169,15 +171,19 @@ async def login(
     current_user: T_Current_User,
     dados: RefreshTokenRequest
  ):
-    try:
-        
-        if current_user.refresh_token != dados.refresh_token or current_user.refresh_token_exp < dados.exp_acess_token:
+    try: 
+        exp = current_user.refresh_token_exp
+        if exp.tzinfo is None:
+            exp = exp.replace(tzinfo=timezone.utc)
+
+        if current_user.refresh_token != dados.refresh_token or exp < datetime.now(tz=timezone.utc):
             raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Ocorreu um erro ao renovar autenticação na api.")
         
         acess_token = create_jwt_token(data=current_user.id)
 
+        current_user.acess_token = acess_token["access_token"]
         current_user.refresh_token = acess_token["refresh_token"]
-        current_user.refresh_token_exp = acess_token["expires(datetime)"]
+        current_user.refresh_token_exp = acess_token["expires(utc)"]
         session.commit()
 
         return acess_token
