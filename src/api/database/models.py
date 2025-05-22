@@ -13,7 +13,6 @@ class User:
     __tablename__ = "usuarios"
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
-    usuario: Mapped[str] = mapped_column(String(100), unique=True)
     nome_completo: Mapped[str] = mapped_column(String(255))
     cpf: Mapped[str] = mapped_column(String(14), unique=True)
     celular1: Mapped[str] = mapped_column(String(15))

@@ -4,6 +4,9 @@
 # COMANDOS ÚTEIS
 - Para testar o código específico da IA com o LangChain, LangGraph e a interface do LangSmith, utilize o comando *langgraph dev* na pasta raiz do projeto
 
+- Comando para inicializar o Alembic no projeto
+-> alembic init src/api/database/migrations
+
 - Criar Migração para banco de dados SQL 
 -> alembic revision --autogenerate -m "nome da migração"
 

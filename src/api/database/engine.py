@@ -11,5 +11,6 @@ load_dotenv()
 engine = create_engine(os.getenv("SQL_URL"))
 
 def get_session_engine():
+    print("CONECTADO AO BANCO DE PRODUÇÃO")
     with Session(engine) as session:
         yield session

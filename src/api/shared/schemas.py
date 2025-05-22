@@ -16,7 +16,6 @@ class ResponseAgent(BaseModel):
     resposta_agent: str | None = None
 
 class UsuarioAPI(BaseModel):
-    usuario: str
     email: str
     password: str
     nome_completo: str
@@ -25,11 +24,11 @@ class UsuarioAPI(BaseModel):
     celular2: str | None = None
     email: str
     password: str
+    ativo: bool
     permissoes: list[UserPermissoes] | None = None
 
 class ResponseUsuario(BaseModel):
     id: int
-    usuario: str
     email: str
     nome_completo: str
     cpf: str

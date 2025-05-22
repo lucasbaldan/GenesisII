@@ -1,8 +1,7 @@
 from datetime import datetime, timezone
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, HTTPException
 
 from sqlalchemy import select
 
@@ -16,33 +15,32 @@ router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 @router.post("/", status_code=HTTPStatus.CREATED, response_model=ResponseUsuario)
 async def salvar(usuario: UsuarioAPI, 
-                 session: T_Session,
+                 session: T_Session
                  ):
     try:    
               
             verifica_usuario = session.scalar(
                 select(User).where(
-                    (User.usuario == usuario.usuario) | (User.email == usuario.email) | (User.cpf == usuario.cpf)
+                    (User.email == usuario.email) | (User.cpf == usuario.cpf)
                 )
             )
 
             if verifica_usuario:
                 if verifica_usuario.email == usuario.email:
                     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Email já cadastrado na plataforma.")
-                elif verifica_usuario.cpf == usuario.cpf:
-                    raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="CPF já cadastrado na plataforma.")
                 else:
-                    raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Usuário já cadastrado na plataforma.")
+                    raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="CPF já cadastrado na plataforma.")
 
 
             novo_usuario = User(
-                usuario=usuario.usuario,
                 email=usuario.email,
                 password=hash_password(usuario.password),
                 nome_completo=usuario.nome_completo,
                 cpf=usuario.cpf,
                 celular1=usuario.celular1,
-                celular2=usuario.celular2
+                celular2=usuario.celular2,
+                permissoes=[p.value for p in usuario.permissoes],
+                ativo=usuario.ativo,
             )
 
             session.add(novo_usuario)
@@ -50,7 +48,9 @@ async def salvar(usuario: UsuarioAPI,
             session.refresh(novo_usuario)
 
             return novo_usuario
-
+    
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
@@ -69,12 +69,14 @@ async def atualizar_usuario(
         if not usuario_db:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Usuário não encontrado na base de dados.")
         
-        usuario_db.usuario = usuario.usuario
         usuario_db.email = usuario.email
         usuario_db.nome_completo = usuario.nome_completo
         usuario_db.cpf = usuario.cpf
         usuario_db.celular1 = usuario.celular1
         usuario_db.celular2 = usuario.celular2
+        usuario_db.permissoes = [p.value for p in usuario.permissoes]
+        usuario_db.ativo = usuario.ativo
+
 
         if usuario.password:
             usuario_db.password = hash_password(usuario.password)
@@ -84,6 +86,8 @@ async def atualizar_usuario(
 
         return usuario_db
 
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
