@@ -1,0 +1,36 @@
+services:
+  api_ia_agent:
+    entrypoint: ./entrypoint.sh
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - SQL_URL="mysql+pymysql://root:123456@ia_database:3306/dados_ia_agent"
+    depends_on:
+      - ia_database
+  
+  ia_database:
+    image: mariadb:11
+    volumes:
+      - mysql_storage:/var/lib/mysql/data
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: dados_ia_agent
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: 123456
+
+  ia_phpmyadmin:
+    image: phpmyadmin
+    environment:
+      PMA_HOST: ia_database
+    ports:
+      - "3307:80"
+    depends_on:
+      - ia_database
+    
+volumes:
+  mysql_storage:
