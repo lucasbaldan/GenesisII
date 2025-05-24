@@ -15,7 +15,7 @@ class ConsultaAgent(BaseModel):
 class ResponseAgent(BaseModel):
     resposta_agent: str | None = None
 
-class UsuarioAPI(BaseModel):
+class UsuarioRequest(BaseModel):
     email: str
     password: str
     nome_completo: str
@@ -27,7 +27,17 @@ class UsuarioAPI(BaseModel):
     ativo: bool
     permissoes: list[UserPermissoes] | None = None
 
-class ResponseUsuario(BaseModel):
+class UsuarioListRequest(BaseModel):
+    id: int | None = None
+    email: str | None = None
+    nome_completo: str | None = None
+    cpf: str | None = None
+    celular1: str | None = None
+    celular2: str | None = None
+    email: str | None = None
+    ativo: bool | None = None
+
+class UsuarioResponse(BaseModel):
     id: int
     email: str
     nome_completo: str
@@ -35,6 +45,7 @@ class ResponseUsuario(BaseModel):
     celular1: str
     celular2: str | None = None
     created_at: datetime
+    ativo: bool
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str

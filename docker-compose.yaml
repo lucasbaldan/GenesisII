@@ -5,16 +5,21 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "80:8000"
     environment:
-      - SQL_URL="mysql+pymysql://root:123456@ia_database:3306/dados_ia_agent"
+      - SQL_URL=mysql+aiomysql://root:123456@ia_database:3306/dados_ia_agent
     depends_on:
       - ia_database
+    # apenas desenvolvimento
+    volumes:
+      - .:/webapp
+    working_dir: /webapp
+    #----------------------
   
   ia_database:
     image: mariadb:11
     volumes:
-      - mysql_storage:/var/lib/mysql/data
+      - mysql_storage:/var/lib/mysql
     ports:
       - "3306:3306"
     environment:

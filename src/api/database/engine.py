@@ -1,5 +1,4 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from dotenv import load_dotenv
 import os
@@ -8,9 +7,8 @@ load_dotenv()
 
 # Create the SQLAlchemy engine using the SQL_URL environment variable
 
-engine = create_engine(os.getenv("SQL_URL"))
+engine = create_async_engine(os.getenv("SQL_URL"))
 
-def get_session_engine():
-    print("CONECTADO AO BANCO DE PRODUÇÃO")
-    with Session(engine) as session:
+async def get_session_engine():
+    async with AsyncSession(engine) as session:
         yield session
