@@ -1,6 +1,6 @@
 {
     "dependencies": ["."],
     "graphs": {
-        "agent": "aiserver.langgraph:graph"
+        "agent": "src.ai.langgraph:graph"
     }
 }

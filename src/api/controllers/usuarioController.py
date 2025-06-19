@@ -7,12 +7,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.database.engine import get_session_engine
-from api.shared.Annotateds import T_Current_User, T_OAuth2_Request_Form
-from api.shared.schemas import  RefreshTokenRequest, UsuarioRequest, UsuarioResponse, UsuarioListRequest
-from api.database.models import User
-from api.utils.PasswordHash import hash_password, verify_password
-from api.utils.JWT import create_jwt_token
+from src.api.database.engine import get_session_engine
+from src.api.shared.Annotateds import T_Current_User, T_OAuth2_Request_Form
+from src.api.shared.schemas import  RefreshTokenRequest, UsuarioRequest, UsuarioResponse, UsuarioListRequest
+from src.api.database.models import User
+from src.api.utils.PasswordHash import hash_password, verify_password
+from src.api.utils.JWT import create_jwt_token
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 

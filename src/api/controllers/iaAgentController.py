@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from ai.langgraph import graph
-from api.shared.schemas import ConsultaAgent, ResponseAgent
+from src.ai.langgraph import graph
+from src.api.shared.schemas import ConsultaAgent, ResponseAgent
 
 router = APIRouter(prefix="/ia", tags=["IA"])
 

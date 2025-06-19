@@ -4,9 +4,9 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from api.database.engine import get_session_engine
-from api.utils.OAuth2 import get_current_user
-from api.database.models import User
+from src.api.database.engine import get_session_engine
+from src.api.utils.OAuth2 import get_current_user
+from src.api.database.models import User
 
 T_Session = Annotated[AsyncEngine, Depends(get_session_engine)]
 T_Current_User = Annotated[User, Depends(get_current_user)]

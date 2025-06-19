@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-from api.database.models import UserPermissoes
+from src.api.database.models import UserPermissoes
 
 
 class ErrorResponse(BaseModel):
