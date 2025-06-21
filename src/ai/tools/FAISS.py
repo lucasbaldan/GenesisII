@@ -101,6 +101,8 @@ def salvar_doc_faiss(nome_doc: str, chunks_doc: List[Document]) -> str | None:
     Salva um chunck de documento no banco vetorial FAISS para uso futuro.
     """
     try:
+        metadata_clear= {"id", "doc", "chunk_id", "data", "filename", "page_number", 'filetype', 'category'}
+        
         doc_ids = []
 
         for i, chunk in enumerate(chunks_doc):
@@ -115,8 +117,13 @@ def salvar_doc_faiss(nome_doc: str, chunks_doc: List[Document]) -> str | None:
                 "data": datetime.datetime.now().strftime("%Y-%m-%d")
             })
 
-        faiss.add_documents(chunks_doc, ids=doc_ids)
-        faiss.save_local(caminho_faiss)
+            chunk.metadata = {k: v for k, v in chunk.metadata.items() if k in metadata_clear}
+
+
+        print(chunks_doc)
+
+        # faiss.add_documents(chunks_doc, ids=doc_ids)
+        # faiss.save_local(caminho_faiss)
 
         return None
     
