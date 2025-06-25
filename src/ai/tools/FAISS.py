@@ -67,7 +67,7 @@ def atualizar_info_faiss(doc_id: str, novo_texto: str) -> str | None:
 
 
 @tool
-def salvar_info_faiss(texto: str, tipo: str) -> str | None:
+async def salvar_info_faiss(texto: str, tipo: str) -> str | None:
     """
     Salva uma nova informação útil no banco vetorial FAISS para uso futuro.
 
@@ -96,7 +96,7 @@ def salvar_info_faiss(texto: str, tipo: str) -> str | None:
     
 
 
-def salvar_doc_faiss(nome_doc: str, chunks_doc: List[Document]) -> str | None:
+def salvar_doc_faiss(nome_doc: str, chunks_doc: List[Document]) -> list:
     """
     Salva um chunck de documento no banco vetorial FAISS para uso futuro.
     """
@@ -119,17 +119,14 @@ def salvar_doc_faiss(nome_doc: str, chunks_doc: List[Document]) -> str | None:
 
             chunk.metadata = {k: v for k, v in chunk.metadata.items() if k in metadata_clear}
 
+        faiss.add_documents(chunks_doc, ids=doc_ids)
+        faiss.save_local(caminho_faiss)
 
-        print(chunks_doc)
-
-        # faiss.add_documents(chunks_doc, ids=doc_ids)
-        # faiss.save_local(caminho_faiss)
-
-        return None
+        return doc_ids
     
     except Exception as e:
-        return f"Erro ao salvar documento no FAISS :-> {e}"
-    
+        raise Exception(f"Erro ao salvar documento no FAISS :-> {e}")
+
 
 
 @tool

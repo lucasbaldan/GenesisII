@@ -11,7 +11,7 @@ from src.ai.services.chunker import chunker
 router = APIRouter(prefix="/archive", tags=["archive"])
 
 @router.post("/", status_code=HTTPStatus.OK)
-async def cadastrar_archive(caminho_arquivo="chamada2024.pdff"):
+async def cadastrar_archive(caminho_arquivo="chamada2024.pdf"):
     """
     Endpoint para processamentos de documentos pela IA.
     Guarda o documento vetorizado no banco FAISS.    
@@ -23,7 +23,7 @@ async def cadastrar_archive(caminho_arquivo="chamada2024.pdff"):
         
         match loader.extensao:
             case ".pdf":
-                 loader.PDFLoader()
+                loader.PDFLoader()
             case ".docx":
                 loader.MSWordLoader()
             case ".pptx":
@@ -39,11 +39,9 @@ async def cadastrar_archive(caminho_arquivo="chamada2024.pdff"):
         chunk = chunker(loader.result)
         
         result = salvar_doc_faiss(loader.nome, chunk)
-        
-        if result:
-           raise HTTPException(status_code=500, detail=str(result)) 
+        print(result)
 
-        return {"message": "Documento processado com sucesso", "tipo_documento": mimetypes.guess_type(caminho_arquivo)[0]}
+        return {"message": "Documento processado com sucesso", "tipo_documento": loader.extensao, "nome_documento": loader.nome}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

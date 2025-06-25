@@ -36,11 +36,8 @@ class DocsLoaders:
         """
         documento = UnstructuredPDFLoader(str(self.caminho)).load()
 
-        for doc in documento:
-            linhas = doc.page_content.splitlines()
-            doc.page_content = " ".join(linha.strip() for linha in linhas if linha.strip())
-
         self.result = documento
+        self.normalize()
 
     def MSWordLoader(self) -> None:
         """
@@ -48,11 +45,8 @@ class DocsLoaders:
         """
         documento = UnstructuredWordDocumentLoader(str(self.caminho)).load()
 
-        for doc in documento:
-            linhas = doc.page_content.splitlines()
-            doc.page_content = " ".join(linha.strip() for linha in linhas if linha.strip())
-
         self.result = documento
+        self.normalize()
 
     def MSPowerPointLoader(self) -> None:
         """
@@ -60,11 +54,8 @@ class DocsLoaders:
         """
         documento = UnstructuredPowerPointLoader(str(self.caminho)).load()
 
-        for doc in documento:
-            linhas = doc.page_content.splitlines()
-            doc.page_content = " ".join(linha.strip() for linha in linhas if linha.strip())
-
         self.result = documento
+        self.normalize()
 
     def TxtLoader(self) -> None:
         """
@@ -72,8 +63,13 @@ class DocsLoaders:
         """
         documento = TextLoader(str(self.caminho), autodetect_encoding=True).load()
 
-        for doc in documento:
+        self.result = documento
+        self.normalize()
+
+    def normalize(self) -> None:
+        """
+        Normaliza o conteúdo do documento, removendo espaços em branco extras e quebras de linhas que bugam o chunker.
+        """
+        for doc in self.result:
             linhas = doc.page_content.splitlines()
             doc.page_content = " ".join(linha.strip() for linha in linhas if linha.strip())
-
-        self.result = documento

@@ -6,7 +6,7 @@ def chunker(doc: list[Document]) -> list[Document]:
     Faz o chunker do conteúdo do documento conforme as regras definidas nessa função.
     """
     chunk_min_chars: int = 30
-    chunk_size: int = 1000
+    chunk_size: int = 850
     chunk_overlap: int = 100
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
