@@ -46,7 +46,7 @@ class AgentMemory:
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
 
 @table_registry.mapped_as_dataclass
-class Agent:
+class HistoricoChat:
     __tablename__ = "historico_chat"
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)

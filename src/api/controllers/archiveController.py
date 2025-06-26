@@ -38,8 +38,7 @@ async def cadastrar_archive(caminho_arquivo="chamada2024.pdf"):
         
         chunk = chunker(loader.result)
         
-        result = salvar_doc_faiss(loader.nome, chunk)
-        print(result)
+        salvar_doc_faiss(loader.nome, chunk)
 
         return {"message": "Documento processado com sucesso", "tipo_documento": loader.extensao, "nome_documento": loader.nome}
 

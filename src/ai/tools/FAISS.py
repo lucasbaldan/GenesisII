@@ -3,12 +3,17 @@ import datetime
 import os
 
 from typing import List
+
 import uuid
 
 from langchain_community.vectorstores import FAISS # Para armazenar os embeddings
 from langchain_core.tools import tool # Decorador para definir ferramentas
 from langchain_openai import OpenAIEmbeddings
 from langchain.schema import Document
+from langchain.tools import StructuredTool
+
+
+from src.api.services.dbService import salvar_nova_memoria
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -64,10 +69,7 @@ def atualizar_info_faiss(doc_id: str, novo_texto: str) -> str | None:
         return(f"Erro ao atualizar a informação no FAISS: {e}")
 
 
-
-
-@tool
-async def salvar_info_faiss(texto: str, tipo: str) -> str | None:
+async def salvar_info_faiss_async(texto: str, tipo: str) -> str:
     """
     Salva uma nova informação útil no banco vetorial FAISS para uso futuro.
 
@@ -78,6 +80,7 @@ async def salvar_info_faiss(texto: str, tipo: str) -> str | None:
     A IA deve inferir o tipo com base no conteúdo da informação.
     """
     try:
+        print("[TOOL] Início da execução da tool.")
         doc_id = str(uuid.uuid4())  # Gerar um ID único para a memória
 
         documento = Document(
@@ -88,12 +91,28 @@ async def salvar_info_faiss(texto: str, tipo: str) -> str | None:
                 "data": datetime.datetime.now().strftime("%Y-%m-%d")
             }
         )
+        print("[TOOL] Adicionando no FAISS...")
         faiss.add_documents([documento], ids=[doc_id])
         faiss.save_local(caminho_faiss)
+
+        print("[TOOL] Chamando salvar_nova_memoria...")
+        result_sql = await salvar_nova_memoria(texto, doc_id)
+        if result_sql:
+            raise Exception(result_sql)
+
+        print("[TOOL] Finalizando a execução da tool.")
+        return "Informação salva com sucesso"
     
     except Exception as e:
+        print(f"Erro ao salvar a informação no FAISS: {e}")
         return(f"Erro ao salvar a informação no FAISS: {e}")
-    
+
+salvar_info_faiss = StructuredTool.from_function(
+    salvar_info_faiss_async,
+    name="salvar_info_faiss",
+    description="Salva informações no banco FAISS e no banco SQL",
+    coroutine=salvar_info_faiss_async
+)
 
 
 def salvar_doc_faiss(nome_doc: str, chunks_doc: List[Document]) -> list:

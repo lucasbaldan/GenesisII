@@ -11,7 +11,7 @@ async def consultar_agente(consulta: ConsultaAgent):
     Retorna a resposta do agente IA.    
     """
     try:
-        result = graph.invoke({
+        result = await graph.ainvoke({
             "messages": [
                 {"role": "user", "content": consulta.prompt}
             ]
