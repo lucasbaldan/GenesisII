@@ -1,5 +1,8 @@
+from sqlalchemy import select
 from src.api.database.engine import get_session_engine_context
 from src.api.database.models import AgentMemory
+
+# FUNÇÕES UTILIZADAS DENTRO DAS TOOLS DA IA PARA GRAVAR INFOs NO BANCO SQL
 
 async def salvar_nova_memoria(texto: str, doc_id: str) -> str | None:
     try:
@@ -12,6 +15,35 @@ async def salvar_nova_memoria(texto: str, doc_id: str) -> str | None:
             )
             session.add(nova_memoria)
             await session.commit()
+
+        return None
+
+    except Exception as e:
+        print (f"Erro ao salvar memória no banco -> {e}")
+        return f"Erro ao salvar memória no banco de dados: {e}"
+    
+
+async def atualiza_memoria(novo_texto: str, doc_id: str) -> str | None:
+    try:
+        async with get_session_engine_context() as session:
+            if doc_id:
+                verifica_memoria = await session.execute(
+                    select(AgentMemory).where(AgentMemory.faiss_id == doc_id).limit(1)
+                )
+                memoria = verifica_memoria.scalar_one_or_none()
+
+                if memoria:
+                    memoria.ativo = False
+                    memoria.faiss_id = None
+                else: 
+                    print (f"Registro de memória não encontrado - ID: {doc_id}")
+        nova_memoria = AgentMemory(
+            descricao_memoria=novo_texto,
+            faiss_id=doc_id,
+            usuario_id=1 
+        )
+        session.add(nova_memoria)
+        await session.commit()
 
         return None
 

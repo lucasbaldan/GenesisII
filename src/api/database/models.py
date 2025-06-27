@@ -43,6 +43,7 @@ class AgentMemory:
     usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id", onupdate="CASCADE", ondelete="RESTRICT"))
     descricao_memoria: Mapped[str] = mapped_column(Text)
     faiss_id: Mapped[str] = mapped_column(String(255))
+    ativo: Mapped[bool] = mapped_column(Boolean, init=False, default=True)
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
 
 @table_registry.mapped_as_dataclass

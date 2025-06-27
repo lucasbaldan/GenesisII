@@ -13,7 +13,7 @@ from langchain.schema import Document
 from langchain.tools import StructuredTool
 
 
-from src.api.services.dbService import salvar_nova_memoria
+from src.api.services.dbService import salvar_nova_memoria, atualiza_memoria
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -35,8 +35,8 @@ else:
     faiss.save_local(caminho_faiss)
 
 
-@tool
-def atualizar_info_faiss(doc_id: str, novo_texto: str) -> str | None:
+
+async def atualizar_info_faiss_async(doc_id: str, novo_texto: str) -> str | None:
     """
     Exclui uma informação Salva no banco vetorial FAISS que está desatualizada e adiciona a nova informação atualização para uso futuro.
 
@@ -48,10 +48,12 @@ def atualizar_info_faiss(doc_id: str, novo_texto: str) -> str | None:
     try:
         old_doc = faiss.get_by_ids([doc_id])
         if not old_doc:
+            print(f"Registro de memória não encontrado para o ID: {doc_id}")
             return (f"Registro de memória não encontrado para o ID informado.")
 
         # Deletar o documento original
         faiss.delete([doc_id])
+        print(f"Registro de memória deletado para o ID: {doc_id}")
 
         documento_atualizado = Document(
             page_content=novo_texto,
@@ -64,9 +66,22 @@ def atualizar_info_faiss(doc_id: str, novo_texto: str) -> str | None:
 
         faiss.add_documents([documento_atualizado], ids=[doc_id]) # Adicionar o novo documento ao índice
         faiss.save_local(caminho_faiss)
+        print(f"Registro de memória atualizado para o ID: {doc_id}")
+
+        atualizar_banco  = await atualiza_memoria(novo_texto, doc_id)
+        if atualizar_banco:
+            print(f"Erro ao atualizar a informação no banco SQL -> {atualizar_banco}")
+            raise Exception(f"Erro ao atualizar a informação no banco SQL -> {atualizar_banco}")
     
     except Exception as e:
         return(f"Erro ao atualizar a informação no FAISS: {e}")
+
+atualizar_info_faiss = StructuredTool.from_function(
+    atualizar_info_faiss_async,
+    name="salvar_info_faiss",
+    description="Atualiza informações no banco FAISS e no banco SQL",
+    coroutine=atualizar_info_faiss_async
+)
 
 
 async def salvar_info_faiss_async(texto: str, tipo: str) -> str:
@@ -80,7 +95,6 @@ async def salvar_info_faiss_async(texto: str, tipo: str) -> str:
     A IA deve inferir o tipo com base no conteúdo da informação.
     """
     try:
-        print("[TOOL] Início da execução da tool.")
         doc_id = str(uuid.uuid4())  # Gerar um ID único para a memória
 
         documento = Document(
@@ -91,16 +105,13 @@ async def salvar_info_faiss_async(texto: str, tipo: str) -> str:
                 "data": datetime.datetime.now().strftime("%Y-%m-%d")
             }
         )
-        print("[TOOL] Adicionando no FAISS...")
         faiss.add_documents([documento], ids=[doc_id])
         faiss.save_local(caminho_faiss)
 
-        print("[TOOL] Chamando salvar_nova_memoria...")
         result_sql = await salvar_nova_memoria(texto, doc_id)
         if result_sql:
             raise Exception(result_sql)
 
-        print("[TOOL] Finalizando a execução da tool.")
         return "Informação salva com sucesso"
     
     except Exception as e:
