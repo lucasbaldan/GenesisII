@@ -56,3 +56,15 @@ class HistoricoChat:
     texto_chat: Mapped[str] = mapped_column(Text)
     origem: Mapped[str] = mapped_column(String(50), comment="Usuário ou IA")
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
+
+@table_registry.mapped_as_dataclass
+class ProcessedDocs:
+    __tablename__ = "processed_docs"
+
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
+    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id", onupdate="CASCADE", ondelete="RESTRICT"))
+    nome_arquivo: Mapped[str] = mapped_column(String(500), nullable=False)
+    nome_documento: Mapped[str] = mapped_column(String(500), nullable=False)
+    descricao: Mapped[str] = mapped_column(Text, nullable=True)
+    faiss_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())

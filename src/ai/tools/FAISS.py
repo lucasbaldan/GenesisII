@@ -13,7 +13,7 @@ from langchain.schema import Document
 from langchain.tools import StructuredTool
 
 
-from src.api.services.dbService import salvar_nova_memoria, atualiza_memoria
+from src.api.services.dbService import salvar_nova_memoria, atualiza_memoria, salvar_novo_doc
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -126,14 +126,14 @@ salvar_info_faiss = StructuredTool.from_function(
 )
 
 
-def salvar_doc_faiss(nome_doc: str, chunks_doc: List[Document]) -> list:
+def salvar_doc_faiss(nome_doc: str, chunks_doc: List[Document], file_description: str = None) -> list:
     """
     Salva um chunck de documento no banco vetorial FAISS para uso futuro.
     """
     try:
-        metadata_clear= {"id", "doc", "chunk_id", "data", "filename", "page_number", 'filetype', 'category'}
+        metadata_clear= {"id", "doc", "chunk_id", "data", "filename", "page_number", 'filetype', 'category', 'file_description'}
         
-        doc_ids = []
+        doc_ids: list[str] = []
 
         for i, chunk in enumerate(chunks_doc):
             
@@ -144,6 +144,7 @@ def salvar_doc_faiss(nome_doc: str, chunks_doc: List[Document]) -> list:
                 "id": uid,
                 "doc": nome_doc,
                 "chunk_id": i,
+                "file_description": file_description,
                 "data": datetime.datetime.now().strftime("%Y-%m-%d")
             })
 
@@ -155,6 +156,7 @@ def salvar_doc_faiss(nome_doc: str, chunks_doc: List[Document]) -> list:
         return doc_ids
     
     except Exception as e:
+        print(f"Erro ao salvar documento no FAISS: {e}")
         raise Exception(f"Erro ao salvar documento no FAISS :-> {e}")
 
 

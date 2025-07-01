@@ -35,8 +35,9 @@ class DocsLoaders:
         Carrega um documento PDF e o processa em chunks.
         """
         documento = UnstructuredPDFLoader(str(self.caminho)).load()
-
+        
         self.result = documento
+        self.checkContent()
         self.normalize()
 
     def MSWordLoader(self) -> None:
@@ -46,6 +47,7 @@ class DocsLoaders:
         documento = UnstructuredWordDocumentLoader(str(self.caminho)).load()
 
         self.result = documento
+        self.checkContent()
         self.normalize()
 
     def MSPowerPointLoader(self) -> None:
@@ -55,6 +57,7 @@ class DocsLoaders:
         documento = UnstructuredPowerPointLoader(str(self.caminho)).load()
 
         self.result = documento
+        self.checkContent()
         self.normalize()
 
     def TxtLoader(self) -> None:
@@ -64,6 +67,7 @@ class DocsLoaders:
         documento = TextLoader(str(self.caminho), autodetect_encoding=True).load()
 
         self.result = documento
+        self.checkContent()
         self.normalize()
 
     def normalize(self) -> None:
@@ -73,3 +77,12 @@ class DocsLoaders:
         for doc in self.result:
             linhas = doc.page_content.splitlines()
             doc.page_content = " ".join(linha.strip() for linha in linhas if linha.strip())
+
+    def checkContent(self) -> None:
+        """
+        Verifica se o conteúdo do documento é válido de acordo com as regras da plataforma.
+        """
+        if not self.result or len(self.result) < 1:
+            raise ValueError(f"O documento {self.nome} não contém conteúdo válido (Com no mínimo 20 caracteres).")
+        if self.result[0].page_content.__len__() < 20:
+            raise ValueError(f"O documento {self.nome} não contém conteúdo válido (Com no mínimo 20 caracteres).")

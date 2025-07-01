@@ -26,8 +26,7 @@ system_message = SystemMessage(content="""
                                         ### Ao receber uma informação nova:
                                         - Identifique se é útil e relevante para consultas futuras.
                                         - Use a ferramenta `salvar_info_faiss`.
-                                        - Classifique corretamente o tipo da informação como uma das seguintes categorias: 'contato', 'estrutura', 'procedimento', 'evento', etc.
-                                        - Envie a informação no parâmetro `texto` e o tipo no parâmetro `tipo`.
+                                        - Envie a informação no parâmetro `texto` e o tipo no parâmetro `tipo`, o tipo da informação como uma das seguintes categorias: 'contato', 'estrutura', 'procedimento', 'evento', etc..
 
                                         ### Ao receber uma informação que **atualiza** algo já existente:
                                         1. Use a ferramenta `buscar_info_faiss` para localizar a informação antiga relacionada.
@@ -36,7 +35,7 @@ system_message = SystemMessage(content="""
                                             - Extraia o `doc_id` da informação antiga.
                                             - Chame a ferramenta `atualizar_info_faiss`, enviando:
                                                 - `doc_id`: o ID da informação antiga,
-                                                - `novo_texto`: a nova versão do conteúdo,
+                                                - `novo_texto`: a nova versão da informação,
 
                                         **Atenção:** Nunca chame a ferramenta `atualizar_info_faiss` sem os parâmetros mencionados, senão será ocasionado erro na aplicação. Caso você não tenha as informações da memória, deve buscá-los primeiro usando a ferramenta `buscar_info_faiss`.
 

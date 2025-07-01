@@ -1,6 +1,7 @@
 from sqlalchemy import select
+
 from src.api.database.engine import get_session_engine_context
-from src.api.database.models import AgentMemory
+from src.api.database.models import AgentMemory, ProcessedDocs
 
 # FUNÇÕES UTILIZADAS DENTRO DAS TOOLS DA IA PARA GRAVAR INFOs NO BANCO SQL
 
@@ -44,6 +45,27 @@ async def atualiza_memoria(novo_texto: str, doc_id: str) -> str | None:
         )
         session.add(nova_memoria)
         await session.commit()
+
+        return None
+
+    except Exception as e:
+        print (f"Erro ao salvar memória no banco -> {e}")
+        return f"Erro ao salvar memória no banco de dados: {e}"
+    
+
+# FUNCTIONS FOR DOCS.
+
+async def salvar_novo_doc(filename: str, doc_ids: list[str]) -> str | None:
+    try:
+        # 2. Criar conexão e salvar no SQL
+        async with get_session_engine_context() as session:
+            novo_doc = ProcessedDocs(
+                titulo_doc=filename,
+                faiss_ids=doc_ids,
+                usuario_id=1
+            )
+            session.add(novo_doc)
+            await session.commit()
 
         return None
 
