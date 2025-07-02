@@ -11,6 +11,7 @@ class ErrorResponse(BaseModel):
 
 class ConsultaAgent(BaseModel):
     prompt: str
+    thread_id: str | None = None
     
 class ResponseAgent(BaseModel):
     resposta_agent: str | None = None
