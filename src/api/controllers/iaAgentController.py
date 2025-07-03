@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.ai.langgraph import graph
+
 from src.api.shared.schemas import ConsultaAgent, ResponseAgent
 from src.api.database.engine import get_session_engine
 from src.api.database.models import HistoricoChat
@@ -19,6 +20,7 @@ async def consultar_agente(consulta: ConsultaAgent,
     Retorna a resposta do agente IA.    
     """
     try:
+
         result = await graph.ainvoke({
             "messages": [
                 {

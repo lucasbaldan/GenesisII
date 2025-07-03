@@ -1,3 +1,4 @@
+from typing import Sequence
 from sqlalchemy import desc, select
 
 from src.api.database.engine import get_session_engine_context
@@ -76,7 +77,7 @@ async def salvar_novo_doc(filename: str, doc_ids: list[str]) -> str | None:
 
 # FUNCTIONS FOR CHAT_HISTORY.
     
-async def getHistoryChatByThreadID(thread_id: str) -> str | None:
+async def getHistoryChatByThreadID(thread_id: str) -> Sequence[HistoricoChat] | None:
     try:
         # 2. Criar conexão e consultar no SQL
         async with get_session_engine_context() as session:
@@ -88,8 +89,8 @@ async def getHistoryChatByThreadID(thread_id: str) -> str | None:
         )
         mensagens = result.scalars().all()
 
-        return None
+        return mensagens
 
     except Exception as e:
         print (f"Erro ao salvar memória no banco -> {e}")
-        return f"Erro ao salvar memória no banco de dados: {e}"
+        return None

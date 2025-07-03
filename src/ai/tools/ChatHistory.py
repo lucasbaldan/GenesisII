@@ -1,6 +1,7 @@
 from typing import Any, Dict
 from langchain_core.memory import BaseMemory
-from sqlalchemy.ext.asyncio import AsyncSession
+
+from api.services.dbService import getHistoryChatByThreadID
 
 class CustomSQLChatMemory(BaseMemory):
     def __init__(self, thread_id: str):
@@ -13,18 +14,15 @@ class CustomSQLChatMemory(BaseMemory):
     async def load_memory_variables(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         '''Buscar o hístorico do chat no banco de dados.'''
         
-        result = await self.db.execute(
-            select(Mensagem)
-            .where(Mensagem.usuario_id == self.user_id)
-            .order_by(desc(Mensagem.data))
-            .limit(10)
-        )
-        mensagens = result.scalars().all()
+        result_sql = await getHistoryChatByThreadID(self.thread_id)
+
+        if not result_sql:
+            return {"chat_history": "⚠️ Aviso do sistema: O histórico de conversas não pôde ser carregado neste momento. Tente novamente mais tarde."}
 
         # Construir o histórico no formato esperado pelo LLM
         historico = ""
-        for msg in reversed(mensagens):  # manter ordem cronológica
-            historico += f"Usuário: {msg.pergunta}\nIA: {msg.resposta}\n"
+        for msg in reversed(result_sql):  # manter ordem cronológica
+            historico += f"Usuário: {msg.prompt_description}\nIA: {msg.response_description}\n"
 
         return {"chat_history": historico}
 

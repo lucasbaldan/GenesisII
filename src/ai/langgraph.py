@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 load_dotenv()
 chave_api = os.getenv("OPENAI_API_KEY")
 
-
 model = ChatOpenAI(
     model="gpt-3.5-turbo",
     temperature=0.5,
@@ -51,7 +50,7 @@ system_message = SystemMessage(content="""
 tools = [salvar_info_faiss, buscar_info_faiss, atualizar_info_faiss] # Lista de ferramentas para o agente
 
 graph = create_react_agent(
-    model,
-    tools=tools,
-    prompt=system_message
+     model,
+     tools=tools,
+     prompt=system_message
 )
