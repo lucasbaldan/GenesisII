@@ -1,10 +1,10 @@
 import traceback
 import uuid
 from fastapi import APIRouter, HTTPException, Depends
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.ai.langgraph import graph
-
+from src.ai.langgraph.graph import build_graph
 from src.api.shared.schemas import ConsultaAgent, ResponseAgent
 from src.api.database.engine import get_session_engine
 from src.api.database.models import HistoricoChat
@@ -20,39 +20,31 @@ async def consultar_agente(consulta: ConsultaAgent,
     Retorna a resposta do agente IA.    
     """
     try:
-
+        graph = build_graph()
         result = await graph.ainvoke({
-            "messages": [
-                {
-                    "role": "user",
-                    "content": consulta.prompt
-                }
-            ]
+            "prompt": consulta.prompt,
+            "thread_id": consulta.thread_id if consulta.thread_id else "",
+            "chat_history": "",
+            "resposta_agent": ""
         })
 
-        mensagens = result.get("messages", [])
-        ultima_mensagem = None
-        for m in reversed(mensagens):
-            if hasattr(m, "content"):
-                ultima_mensagem = m
-                break
-
-        if not ultima_mensagem:
-            raise HTTPException(status_code=500, detail="O agente não retornou uma resposta válida.")
+        print(f"Resultado da consulta: \n {result}")
         
-        chat_history = HistoricoChat(
-            thread_id=consulta.thread_id if consulta.thread_id else str(uuid.uuid4()),
-            prompt_description=consulta.prompt,
-            response_description=ultima_mensagem.content,
-            usuario_id=1,
-            titulo_chat="Novo Chat" if not consulta.thread_id else None
-        )
-        session.add(chat_history)
-        await session.commit()
+        # chat_history = HistoricoChat(
+        #     thread_id=consulta.thread_id if consulta.thread_id else str(uuid.uuid4()),
+        #     prompt_description=consulta.prompt,
+        #     response_description=ultima_mensagem.content,
+        #     usuario_id=1,
+        #     titulo_chat="Novo Chat" if not consulta.thread_id else None
+        # )
+        # session.add(chat_history)
+        # await session.commit()
 
-        return ResponseAgent(
-            resposta_agent=ultima_mensagem.content
-            )
+        # return ResponseAgent(
+        #     resposta_agent=ultima_mensagem.content
+        #     )
+
+        return None
 
     except Exception as e:
         print(f"Erro ao consultar o agente IA: {e}")
