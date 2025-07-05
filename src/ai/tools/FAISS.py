@@ -78,8 +78,15 @@ async def atualizar_info_faiss_async(doc_id: str, novo_texto: str) -> str | None
 
 atualizar_info_faiss = StructuredTool.from_function(
     atualizar_info_faiss_async,
-    name="salvar_info_faiss",
-    description="Atualiza informações no banco FAISS e no banco SQL",
+    name="atualizar_info_faiss",
+    description="""
+    Exclui uma informação Salva no banco vetorial FAISS que está desatualizada e adiciona a nova informação atualização para uso futuro.
+
+    Parâmetros:
+    - doc_id: o ID do documento FAISS a ser deletado.
+    - texto: o conteúdo atualizado a ser registrado.
+
+    """,
     coroutine=atualizar_info_faiss_async
 )
 
@@ -121,7 +128,15 @@ async def salvar_info_faiss_async(texto: str, tipo: str) -> str:
 salvar_info_faiss = StructuredTool.from_function(
     salvar_info_faiss_async,
     name="salvar_info_faiss",
-    description="Salva informações no banco FAISS e no banco SQL",
+    description="""
+    Salva uma nova informação útil no banco vetorial FAISS para uso futuro.
+
+    Parâmetros:
+    - texto: o conteúdo informativo a ser registrado.
+    - tipo: a categoria da informação. Deve ser uma palavra-chave como 'contato', 'estrutura', 'procedimento', etc.
+
+    A IA deve inferir o tipo com base no conteúdo da informação.
+    """,
     coroutine=salvar_info_faiss_async
 )
 

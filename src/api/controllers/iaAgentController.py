@@ -20,31 +20,29 @@ async def consultar_agente(consulta: ConsultaAgent,
     Retorna a resposta do agente IA.    
     """
     try:
-        graph = build_graph()
-        result = await graph.ainvoke({
+        graph_chat = build_graph()
+        result = await graph_chat.ainvoke({
             "prompt": consulta.prompt,
             "thread_id": consulta.thread_id if consulta.thread_id else "",
             "chat_history": "",
             "resposta_agent": ""
         })
 
-        print(f"Resultado da consulta: \n {result}")
+        #print(f"Resultado da consulta: \n {result}")
         
-        # chat_history = HistoricoChat(
-        #     thread_id=consulta.thread_id if consulta.thread_id else str(uuid.uuid4()),
-        #     prompt_description=consulta.prompt,
-        #     response_description=ultima_mensagem.content,
-        #     usuario_id=1,
-        #     titulo_chat="Novo Chat" if not consulta.thread_id else None
-        # )
-        # session.add(chat_history)
-        # await session.commit()
+        chat_history = HistoricoChat(
+            thread_id=consulta.thread_id if consulta.thread_id else str(uuid.uuid4()),
+            prompt_description=consulta.prompt,
+            response_description=result['resposta_agent'],
+            usuario_id=1,
+            titulo_chat="Novo Chat" if not consulta.thread_id else None
+        )
+        session.add(chat_history)
+        await session.commit()
 
-        # return ResponseAgent(
-        #     resposta_agent=ultima_mensagem.content
-        #     )
-
-        return None
+        return ResponseAgent(
+            resposta_agent = result['resposta_agent'],
+            )
 
     except Exception as e:
         print(f"Erro ao consultar o agente IA: {e}")
