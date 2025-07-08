@@ -6,12 +6,11 @@ from langchain.schema import AIMessage
 from src.ai.langgraph.BaseAgent import graph
 
 async def exec_agent(state: Dict[str, Any]) -> Dict[str, Any]:
-    chat_history = state.get("chat_history", "")
-    user_input = state["prompt"]  # Obtém a entrada do usuário do estado
+    final_prompt = state["final_prompt"]  # Obtém o prompt preparado para o agente processar
 
     try:
         resultado = await graph.ainvoke(
-            input={"messages": user_input}
+            input={"messages": final_prompt}
         )
 
         print(f"Resultado do agente: {resultado}")

@@ -25,7 +25,8 @@ async def consultar_agente(consulta: ConsultaAgent,
             "prompt": consulta.prompt,
             "thread_id": consulta.thread_id if consulta.thread_id else "",
             "chat_history": "",
-            "resposta_agent": ""
+            "resposta_agent": "",
+            "final_prompt": ""
         })
 
         #print(f"Resultado da consulta: \n {result}")
