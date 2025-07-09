@@ -9,6 +9,7 @@ async def exec_agent(state: Dict[str, Any]) -> Dict[str, Any]:
     final_prompt = state["final_prompt"]  # Obtém o prompt preparado para o agente processar
 
     try:
+        print(f"Executando agente com o prompt: {final_prompt}")
         resultado = await graph.ainvoke(
             input={"messages": final_prompt}
         )

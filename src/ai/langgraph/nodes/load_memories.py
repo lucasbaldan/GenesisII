@@ -31,7 +31,6 @@ async def carregar_memoria_chat(state: Dict[str, Any]) -> Dict[str, Any]:
             chat_history += f"Usuário: {interacao.prompt_description if interacao.prompt_description else 'Prompt não reconhecido'}\n"
             chat_history += f"IA: {interacao.response_description if interacao.response_description else 'Response não reconhecido'}\n"
 
-        print(f"Histórico Recuperado do chat -> {chat_history}")    
         return {"chat_history": chat_history}
 
     except Exception as e:

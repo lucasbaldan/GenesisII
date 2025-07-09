@@ -1,24 +1,22 @@
+import textwrap
 from typing import Dict, Any
 
 def prompt_build(state: Dict[str, Any]) -> Dict[str, Any]:
     '''
     Utiliza o histórico do chat carregado e monta o prompt final a ser processado pelo agente de IA.
     '''
-    historico_chat = state.get("historico_chat", None)
+    historico_chat = state.get("chat_history", None)
     user_question = state.get("prompt", None)
 
     final_prompt = ""
 
     if historico_chat:
-        final_prompt += f"""HISTÓRICO DO CHAT:
-        {historico_chat}
-        ________________ \n"""
+        final_prompt += f"HISTÓRICO DO CHAT: \n {historico_chat} \n"
     
-    final_prompt += f"""INPUT DO USUÁRIO:
-    {user_question}
-"""
+    final_prompt += f"INPUT DO USUÁRIO: {user_question}"
+
+    final_prompt = textwrap.dedent(final_prompt)  # Remove indentations for better formatting
     
-    print(f"Prompt Final Construído -> {final_prompt}")
     return {"final_prompt": final_prompt}
     
 
