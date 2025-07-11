@@ -61,6 +61,17 @@ class HistoricoChat:
     titulo_chat: Mapped[str] = mapped_column(String(255), nullable=True)
     prompt_description: Mapped[str] = mapped_column(Text)
     response_description: Mapped[str] = mapped_column(Text, nullable=True)
+    compacted: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(init=False, default=now_brasil())
+
+@table_registry.mapped_as_dataclass
+class ChatResumes:
+    __tablename__ = "chat_resumes"
+
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
+    thread_id: Mapped[str] = mapped_column(String(255),  nullable=False)
+    resume: Mapped[str] = mapped_column(Text, nullable=False)
+    last_update: Mapped[datetime] = mapped_column(init=False, nullable=False, default=now_brasil())
     created_at: Mapped[datetime] = mapped_column(init=False, default=now_brasil())
 
 @table_registry.mapped_as_dataclass

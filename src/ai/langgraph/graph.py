@@ -9,6 +9,7 @@ class AgentState(TypedDict):
     prompt: str
     thread_id: str
     chat_history: str
+    chat_resume: str
     resposta_agent: str
     final_prompt: str
 
