@@ -1,6 +1,8 @@
 from langgraph.prebuilt import create_react_agent 
 from langchain_core.messages import SystemMessage 
 from langchain_openai import ChatOpenAI
+from langchain.memory import ConversationSummaryMemory
+
 
 from src.ai.tools.FAISS import buscar_info_faiss, atualizar_info_faiss, salvar_info_faiss 
 
@@ -53,4 +55,10 @@ graph = create_react_agent(
      model,
      tools=tools,
      prompt=system_message
+)
+
+memory = ConversationSummaryMemory(
+    llm=model,
+    return_messages=True,
+    memory_key="chat_history"
 )
