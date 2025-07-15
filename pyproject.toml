@@ -6,7 +6,7 @@ authors = [
     {name = "Lucas Faé Baldan",email = "lucasbaldan2014@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.9,<4.0"
+requires-python = ">=3.10,<4.0"
 dependencies = [
     "langchain (>=0.3.26,<0.4.0)",
     "dotenv (>=0.9.9,<0.10.0)",
@@ -25,7 +25,8 @@ dependencies = [
     "aiomysql (>=0.2.0,<0.3.0)",
     "langchain-unstructured (>=0.1.6,<0.2.0)",
     "unstructured[all-docs] (>=0.17.2,<0.18.0)",
-    "tiktoken (>=0.9.0,<0.10.0)"
+    "tiktoken (>=0.9.0,<0.10.0)",
+    "langmem (>=0.0.28,<0.0.29)"
 ]
 
 

@@ -44,7 +44,7 @@ system_message = SystemMessage(content="""
                                         - Responda com base no seu conhecimento.
                                         - Se necessário, use a ferramenta `buscar_info_faiss` para complementar a resposta com dados do banco vetorial.
 
-                                        Sempre que possível, será enviado o histórico do chat para que você possa entender o contexto da conversa com o usuário e responder de forma mais precisa.
+                                        Sempre que possível, será enviado o resumo e o histórico recente do chat para que você possa entender o contexto da conversa com o usuário e responder de forma mais precisa.
                                         """)
 
 
@@ -55,10 +55,4 @@ graph = create_react_agent(
      model,
      tools=tools,
      prompt=system_message
-)
-
-memory = ConversationSummaryMemory(
-    llm=model,
-    return_messages=True,
-    memory_key="chat_history"
 )

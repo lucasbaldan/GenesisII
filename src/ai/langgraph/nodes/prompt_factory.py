@@ -12,12 +12,12 @@ def prompt_build(state: Dict[str, Any]) -> Dict[str, Any]:
     final_prompt = ""
 
     if chat_resume:
-        final_prompt += f"RESUMO DAS MENSAGENS ANTERIORES: \n {chat_resume} \n"
+        final_prompt += f"---RESUMO DOS INTERESSES DO USUÁRIO COM A IA---: \n {chat_resume} \n"
 
     if historico_chat:
-        final_prompt += f"HISTÓRICO DO CHAT: \n {historico_chat} \n"
+        final_prompt += f"---HISTÓRICO DO CHAT---: \n {historico_chat} \n"
     
-    final_prompt += f"INPUT DO USUÁRIO: {user_question}"
+    final_prompt += f"---INPUT DO USUÁRIO: {user_question}"
 
     final_prompt = textwrap.dedent(final_prompt)  # Remove indentations for better formatting
     
