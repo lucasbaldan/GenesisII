@@ -1,10 +1,9 @@
-from datetime import datetime
 from typing import Dict, Any
-from zoneinfo import ZoneInfo
+import uuid
 
 from langchain_core.messages import HumanMessage, AIMessage
 
-from sqlalchemy import desc, select, and_
+from sqlalchemy import asc, select, and_
 
 from src.api.database.engine import get_session_engine_context
 from src.api.database.models import HistoricoChat, ChatResumes
@@ -36,14 +35,14 @@ async def carregar_memoria_chat(state: Dict[str, Any]) -> Dict[str, Any]:
                  and_(HistoricoChat.thread_id == thread_id,
                       HistoricoChat.compacted == False)
                 )
-                .order_by(desc(HistoricoChat.created_at))
+                .order_by(asc(HistoricoChat.created_at))
             )
             mensagens = result.scalars().all()
 
             chat_history = []
             for interacao in mensagens:
-                chat_history.append(HumanMessage(content=interacao.prompt_description if interacao.prompt_description else 'Prompt não reconhecido'))
-                chat_history.append(AIMessage(content=interacao.response_description if interacao.response_description else 'Response não reconhecido'))
+                chat_history.append(HumanMessage(content=interacao.prompt_description if interacao.prompt_description else 'Prompt não reconhecido', id=str(uuid.uuid4())))
+                chat_history.append(AIMessage(content=interacao.response_description if interacao.response_description else 'Response não reconhecido', id=str(uuid.uuid4())))
 
             resumo = await session.execute(
                 select(ChatResumes)
@@ -52,11 +51,8 @@ async def carregar_memoria_chat(state: Dict[str, Any]) -> Dict[str, Any]:
             )
             resumo = resumo.scalars().first()
 
-            return {"chat_history": chat_history, "chat_resume": resumo.resume if resumo.resume else ''}
-
-
-        return {"chat_history": chat_history}
+            return {"chat_history": chat_history, "chat_resume": resumo.resume if resumo is not None and resumo.resume else ''}
 
     except Exception as e:
             print (f"Erro ao consultar histórico do chat -> {e}")
-            return {"chat_history": ""}
+            return {"resposta_agent": "Desculpe, ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde."}

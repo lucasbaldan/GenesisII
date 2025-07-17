@@ -1,6 +1,8 @@
 import textwrap
 from typing import Dict, Any
 
+from langchain_core.messages import HumanMessage, AIMessage
+
 def prompt_build(state: Dict[str, Any]) -> Dict[str, Any]:
     '''
     Utiliza o histórico do chat carregado e monta o prompt final a ser processado pelo agente de IA.
@@ -9,14 +11,25 @@ def prompt_build(state: Dict[str, Any]) -> Dict[str, Any]:
     historico_chat = state.get("chat_history", None)
     user_question = state.get("prompt", None)
 
+    print(state)
+
     final_prompt = ""
 
     if chat_resume:
-        final_prompt += f"---RESUMO DOS INTERESSES DO USUÁRIO COM A IA---: \n {chat_resume} \n"
+        final_prompt += f"---RESUMO DO HISTÓRICO DO CHAT COM O USUÁRIO--- \n {chat_resume} \n\n"
 
     if historico_chat:
-        final_prompt += f"---HISTÓRICO DO CHAT---: \n {historico_chat} \n"
-    
+        final_prompt += f"---HISTÓRICO RECENTE DO CHAT---: \n "
+        for index, historico in enumerate(historico_chat):
+            if index == 9:
+                break
+            if isinstance(historico, HumanMessage):
+                final_prompt += f"USUÁRIO: {historico.content.replace('\n', '').replace('\r', '')} \n"
+            elif isinstance(historico, AIMessage):
+                final_prompt += f"IA: {historico.content.replace('\n', '').replace('\r', '')} \n"
+        
+        final_prompt += "\n"
+
     final_prompt += f"---INPUT DO USUÁRIO: {user_question}"
 
     final_prompt = textwrap.dedent(final_prompt)  # Remove indentations for better formatting
