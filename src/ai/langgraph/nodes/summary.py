@@ -9,7 +9,10 @@ import os
 
 async def checkAndSummary(state: Dict[str, Any]) -> Dict[str, Any]:
     load_dotenv()
-    max_tokens = int(os.getenv("MAX_TOKENS", "2870")) * 0.70
+    #max_tokens = int(os.getenv("MAX_TOKENS", "4096")) * 0.70
+    #max_summary_tokens = int(os.getenv("MAX_TOKENS", "4096")) * 0.30
+    max_tokens = 120000 * 0.70
+    max_summary_tokens = 120000 * 0.30
     resumo_atual = state.get("chat_resume", "")
 
 
@@ -18,14 +21,17 @@ async def checkAndSummary(state: Dict[str, Any]) -> Dict[str, Any]:
         input_messages_key="chat_history",
         output_messages_key="chat_resume",
         existing_summary_prompt=resumo_atual,
-        max_tokens=max_tokens
+        max_tokens=max_tokens,
+        max_summary_tokens=max_summary_tokens
     )
 
     try:
         output = await summarizer_node.ainvoke(state)
-        novo_resumo: str = output["chat_resume"]
+        novo_resumo: str | list = output["chat_resume"]
 
-        return {"chat_resume": novo_resumo}
+        print(f"\n\n RETORNO DO SUMMARY\n {novo_resumo}\n\n")
+
+        return {"chat_resume": novo_resumo if isinstance(novo_resumo, str) else ""}
 
     except Exception as e:
         print(f"Erro ao gerar resumo: {e}")
