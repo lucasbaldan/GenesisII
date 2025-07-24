@@ -20,7 +20,7 @@ def prompt_build(state: Dict[str, Any]) -> Dict[str, Any]:
 
     if historico_chat:
         final_prompt += f"---HISTÓRICO RECENTE DO CHAT---: \n "
-        for historico in historico_chat[-10:]:
+        for historico in historico_chat:
             if isinstance(historico, HumanMessage):
                 final_prompt += f"USUÁRIO: {historico.content.replace('\n', '').replace('\r', '')} \n"
             elif isinstance(historico, AIMessage):
