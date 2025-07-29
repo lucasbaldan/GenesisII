@@ -27,20 +27,19 @@ async def consultar_agente(consulta: ConsultaAgent,
             "chat_history": "",
             "resposta_agent": "",
             "final_prompt": "",
-            "chat_resume": ""
+            "chat_resume": "",
+            "session": session
         })
-
-        #print(f"Resultado da consulta: \n {result}")
         
-        chat_history = HistoricoChat(
-            thread_id=consulta.thread_id if consulta.thread_id else str(uuid.uuid4()),
-            prompt_description=consulta.prompt,
-            response_description=result['resposta_agent'],
-            usuario_id=1,
-            titulo_chat="Novo Chat" if not consulta.thread_id else None
-        )
-        session.add(chat_history)
-        await session.commit()
+        # chat_history = HistoricoChat(
+        #     thread_id=consulta.thread_id if consulta.thread_id else str(uuid.uuid4()),
+        #     prompt_description=consulta.prompt,
+        #     response_description=result['resposta_agent'],
+        #     usuario_id=1,
+        #     titulo_chat="Novo Chat" if not consulta.thread_id else None
+        # )
+        # session.add(chat_history)
+        # await session.commit()
 
         return ResponseAgent(
             resposta_agent = result['resposta_agent'],
@@ -49,4 +48,4 @@ async def consultar_agente(consulta: ConsultaAgent,
     except Exception as e:
         print(f"Erro ao consultar o agente IA: {e}")
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail={e})

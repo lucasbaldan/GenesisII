@@ -1,13 +1,9 @@
 from typing import Dict, Any
-import uuid
-
-from langchain_core.messages import HumanMessage, AIMessage
 
 from sqlalchemy import asc, select, and_
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.database.engine import get_session_engine_context
 from src.api.database.models import HistoricoChat, ChatResumes
-from src.ai.langgraph.BaseAgent import model as llm
 
 import os
 from dotenv import load_dotenv
@@ -23,36 +19,33 @@ async def carregar_memoria_chat(state: Dict[str, Any]) -> Dict[str, Any]:
     '''
     try:
         thread_id = state.get("thread_id", None)
+        session: AsyncSession = state.get("session", None)
 
         if not thread_id:
             return {"chat_history": ""}
+        if not session:
+            raise Exception("Erro ao se comunicar com o banco de dados.")
         
         # Criar conexão e consultar no SQL
-        async with get_session_engine_context() as session:
-            result = await session.execute(
-                select(HistoricoChat)
-                .where(
-                 and_(HistoricoChat.thread_id == thread_id,
-                      HistoricoChat.compacted == False)
-                )
-                .order_by(asc(HistoricoChat.created_at))
-            )
-            mensagens = result.scalars().all()
+        result = await session.execute(
+             select(HistoricoChat)
+             .where(
+                  and_(HistoricoChat.thread_id == thread_id,
+                       HistoricoChat.compacted == False)
+             )
+             .order_by(asc(HistoricoChat.created_at))
+        )
+        mensagens = result.scalars().all()
 
-            chat_history = []
-            for interacao in mensagens:
-                chat_history.append(HumanMessage(content=interacao.prompt_description if interacao.prompt_description else 'Prompt não reconhecido', id=str(uuid.uuid4())))
-                chat_history.append(AIMessage(content=interacao.response_description if interacao.response_description else 'Response não reconhecido', id=str(uuid.uuid4())))
-
-            resumo = await session.execute(
-                select(ChatResumes)
-                .where(ChatResumes.thread_id == thread_id)
-                .limit(1)
-            )
-            resumo = resumo.scalars().first()
-
-            return {"chat_history": chat_history, "chat_resume": resumo.resume if resumo is not None and resumo.resume else ''}
+        resumo = await session.execute(
+             select(ChatResumes)
+             .where(ChatResumes.thread_id == thread_id)
+             .limit(1)
+        )
+        resumo = resumo.scalars().first()
+        
+        return {"chat_history": mensagens, "chat_resume": resumo}
 
     except Exception as e:
             print (f"Erro ao consultar histórico do chat -> {e}")
-            return {"resposta_agent": "Desculpe, ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde."}
+            raise Exception(f"Erro ao consultar histórico do chat -> {e}")

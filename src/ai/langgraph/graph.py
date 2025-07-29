@@ -1,5 +1,8 @@
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import BaseMessage
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.api.database.models import ChatResumes, HistoricoChat
 from src.ai.langgraph.nodes.exec_agent import exec_agent
 from src.ai.langgraph.nodes.load_memories import carregar_memoria_chat
 from src.ai.langgraph.nodes.prompt_factory import prompt_build
@@ -11,11 +14,12 @@ from typing import TypedDict
 class AgentState(TypedDict):
     prompt: str
     thread_id: str
-    chat_history: list[BaseMessage]
+    chat_history: list[HistoricoChat] | None = None
     chat_history_str: str
-    chat_resume: str
+    chat_resume: ChatResumes | None = None
     resposta_agent: str
     final_prompt: str
+    session: AsyncSession
 
 def build_graph():
     workflow = StateGraph(AgentState)

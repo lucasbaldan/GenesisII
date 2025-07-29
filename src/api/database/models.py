@@ -4,12 +4,11 @@ from enum import Enum
 
 import pytz
 from sqlalchemy.orm import registry, Mapped, mapped_column
-from sqlalchemy import ForeignKey, String, func, Boolean, DateTime, Text
+from sqlalchemy import ForeignKey, String, Boolean, DateTime, Text
 from sqlalchemy.dialects.postgresql import JSON
 
-TZ = pytz.timezone("America/Sao_Paulo")
 def now_brasil():
-    return datetime.now(tz=TZ)
+    return datetime.now(tz=pytz.timezone("America/Sao_Paulo"))
 
 table_registry = registry()
 
