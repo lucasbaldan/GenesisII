@@ -7,6 +7,7 @@ from src.ai.langgraph.nodes.exec_agent import exec_agent
 from src.ai.langgraph.nodes.load_memories import carregar_memoria_chat
 from src.ai.langgraph.nodes.prompt_factory import prompt_build
 from src.ai.langgraph.nodes.summary import checkAndSummary
+from src.ai.langgraph.nodes.save_interaction import salve_interaction_db
 
 
 from typing import TypedDict
@@ -15,7 +16,6 @@ class AgentState(TypedDict):
     prompt: str
     thread_id: str
     chat_history: list[HistoricoChat] | None = None
-    chat_history_str: str
     chat_resume: ChatResumes | None = None
     resposta_agent: str
     final_prompt: str
@@ -28,11 +28,13 @@ def build_graph():
     workflow.add_node("summary", checkAndSummary)
     workflow.add_node("prompt_build", prompt_build)
     workflow.add_node("exec_agent", exec_agent)
+    workflow.add_node("save_interaction", salve_interaction_db)    
 
     workflow.set_entry_point("load_memories_chat")
     workflow.add_edge("load_memories_chat", "summary")
     workflow.add_edge("summary", "prompt_build")
     workflow.add_edge("prompt_build", "exec_agent")
-    workflow.add_edge("exec_agent", END)
+    workflow.add_edge("exec_agent", "save_interaction")
+    workflow.add_edge("save_interaction", END)
 
     return workflow.compile()

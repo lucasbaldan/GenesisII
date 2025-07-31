@@ -49,14 +49,17 @@ async def checkAndSummary(state: Dict[str, Any]) -> Dict[str, Any]:
                     resumo_atual.last_update = datetime.now(tz=pytz.timezone("America/Sao_Paulo"))
                 
                 else:
-                    session.add(ChatResumes(thread_id=state.get("thread_id", "-1"), resume=novo_resumo[0].content))
+                    resumo_atual = ChatResumes(thread_id=state.get("thread_id", "-1"), resume=novo_resumo[0].content)
+                    session.add(resumo_atual)
                 
                 for historico_item in historico[:-5]:
                     historico_item.compacted = True
 
-                return {"chat_resume": novo_resumo[0].content}
+                return {"chat_resume": resumo_atual}
             else:
                 return {"chat_resume": ""}
+        else:
+            return {"chat_resume": ""}
 
     except Exception as e:
         print(f"Erro ao gerar resumo: {e}")

@@ -30,16 +30,6 @@ async def consultar_agente(consulta: ConsultaAgent,
             "chat_resume": "",
             "session": session
         })
-        
-        # chat_history = HistoricoChat(
-        #     thread_id=consulta.thread_id if consulta.thread_id else str(uuid.uuid4()),
-        #     prompt_description=consulta.prompt,
-        #     response_description=result['resposta_agent'],
-        #     usuario_id=1,
-        #     titulo_chat="Novo Chat" if not consulta.thread_id else None
-        # )
-        # session.add(chat_history)
-        # await session.commit()
 
         return ResponseAgent(
             resposta_agent = result['resposta_agent'],
