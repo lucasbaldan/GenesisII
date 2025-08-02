@@ -1,7 +1,7 @@
 import textwrap
 from typing import Dict, Any
 
-from api.database.models import HistoricoChat, ChatResumes
+from src.api.database.models import HistoricoChat, ChatResumes
 
 def prompt_build(state: Dict[str, Any]) -> Dict[str, Any]:
     '''

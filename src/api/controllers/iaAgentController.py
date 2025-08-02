@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.ai.langgraph.graph import build_graph
 from src.api.shared.schemas import ConsultaAgent, ResponseAgent
 from src.api.database.engine import get_session_engine
-from src.api.database.models import HistoricoChat
 
 
 router = APIRouter(prefix="/ia", tags=["IA"])
